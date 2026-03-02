@@ -67,8 +67,21 @@ Go to Canvas and download `Abbas_2019_TableS4_ed1.csv` and `Abbas_2019_TableS4_e
 
 ```{r}
 ### Your R code is here
-### XXXXX
 
+# Load library
+library(ggplot2)
+
+# Load data
+df_1 <- read.csv("data/Abbas_2019_TableS4_ed1.csv")
+df_2 <- read.csv("data/Abbas_2019_TableS4_ed2.csv")
+
+head(df_1)
+head(df_2)
+```
+
+```{r}
+# Load age data
+df_age <- read.csv("data/Abbas_2019_TableS4_ed1.csv", column = "AGE_MEDIAN")
 ```
 
 ### 2. Visualize the dominant tree species compositions using PCA and NMDS.
@@ -86,7 +99,6 @@ After PCA, please visualize the result.
 
 ```{r}
 ### Your R code is here
-### XXXXX
 
 ```
 
