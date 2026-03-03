@@ -71,9 +71,9 @@ Go to Canvas and download `Abbas_2019_TableS4_ed1.csv` and `Abbas_2019_TableS4_e
 # Load library
 library(ggplot2)
 
-# Load data
-df_1 <- read.csv("data/Abbas_2019_TableS4_ed1.csv")
-df_2 <- read.csv("data/Abbas_2019_TableS4_ed2.csv")
+# Load data and make the row names the same
+df_1 <- read.csv("data/Abbas_2019_TableS4_ed1.csv",row.names = 1)
+df_2 <- read.csv("data/Abbas_2019_TableS4_ed2.csv", row.names = 1)
 
 head(df_1)
 head(df_2)
@@ -81,7 +81,7 @@ head(df_2)
 
 ```{r}
 # Load age data
-df_age <- read.csv("data/Abbas_2019_TableS4_ed1.csv", column = "AGE_MEDIAN")
+df_age <- read.csv("data/Abbas_2019_TableS4_ed1.csv", column.names = "AGE_MEDIAN")
 ```
 
 ### 2. Visualize the dominant tree species compositions using PCA and NMDS.
