@@ -71,49 +71,39 @@ Go to Canvas and download `Abbas_2019_TableS4_ed1.csv` and `Abbas_2019_TableS4_e
 # Load library
 library(ggplot2)
 
-# Load data and make the row names the same
+# Load data and  the column names of ed2.csv and the row names of ed1 
 df_1 <- read.csv("data/Abbas_2019_TableS4_ed1.csv",row.names = 1)
 df_2 <- read.csv("data/Abbas_2019_TableS4_ed2.csv", row.names = 1)
 
+# Check the structure of the dataframes
 head(df_1)
 head(df_2)
 ```
 
 ```{r}
-# 2. Calculate the total abundance
+# Calculate the total abundance of the dominant trss type
 total_abundance <- colSums(df_2)
 
-# 3. Verify and Plot
+# Verify whether the IDs match and Plot
 if (all(names(total_abundance) == rownames(df_1))) {
   
+  # Create the data for plotting, combining the age and the total abundance
   plot_data <- data.frame(
     Age = df_1$AGE_MEDIAN, 
     Abundance = as.numeric(total_abundance)
   )
   
-  # Assign the plot to a variable 'p'
-  p <- ggplot(plot_data, aes(x = factor(Age), y = Abundance)) +
-    geom_boxplot(outlier.shape = NA, fill = "white", color = "black") + 
-    geom_jitter(width = 0.15, size = 2, alpha = 0.8) + 
+  # Plot the data with boxplot + jitter plot with a trend line
+   ggplot(plot_data, aes(x = Age, y = Abundance)) +
+    geom_boxplot(aes(group = Age), outliner = FALSE) +
+    geom_jitter(size = 3, alpha = 0.7) +
+    geom_smooth(method = "loess", se = FALSE, color = "red") + 
     labs(
-      title = "Total Tree Abundance across Different Forest Age Classes",
+      title = "Relationship between Forest Age and Total Tree Abundance",
       x = "Median forest age (yr)",
-      y = "Total tree abundance (ind.)"
+      y = "Total Ttree abundance (Ind.)"
     ) +
-    theme_light() +
-    theme(
-      plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
-      axis.title = element_text(size = 11, face = "bold"),
-      panel.grid.minor = element_blank()
-    )
-
-  # 4. EDIT PLOT SIZE HERE
-  # You can change width and height (units can be "in", "cm", or "mm")
-  # A standard scientific plot is often 6x5 or 7x5 inches.
-  ggsave("abundance_plot.png", plot = p, width = 7, height = 14, units = "in", dpi = 300)
-  
-  # To display it in your R session with a specific size (if using RStudio/Jupyter):
-  print(p)
+    theme_minimal() 
 
 } else {
   stop("The Plot IDs in the two files do not match!")
@@ -135,7 +125,58 @@ After PCA, please visualize the result.
 
 ```{r}
 ### Your R code is here
+# Load abundance data
+d_tree <- read.csv("data/Abbas_2019_TableS4_ed2.csv", row.names = 1)
 
+# Convert the data to "compositional data" (relative abundance, %, data)
+d_tree_rel_temp <- apply(d_tree, 2, function(x) x/sum(x))
+
+# Transpose the dataframe
+d_tree_final <- as.data.frame(t(d_tree_rel_temp))
+
+head(d_tree_final)
+```
+
+```{r}
+# Load metadata
+df_meta <- read.csv("data/Abbas_2019_TableS4_ed1.csv")
+
+# Set random seed for reproducibility
+set.seed(42)
+
+# Do PCA
+pca_tree <- prcomp(d_tree_final, center = FALSE, scale = FALSE)
+
+# Display the summary of PCA results
+summary(pca_tree)
+```
+
+```{r}
+library(ggsci)
+
+# Get PCA scores
+pca_df <- as.data.frame(pca_tree$x)
+
+# Add age information
+pca_df$AGE_MEDIAN <- df_1$AGE_MEDIAN
+
+# Convert AGE_MEDIAN to factor for discrete coloring and shaping
+pca_df$AGE_MEDIAN <- as.factor(pca_df$AGE_MEDIAN)
+
+pca_df %>% 
+  ggplot(aes(x = PC1, y = PC2, color = AGE_MEDIAN, shape = AGE_MEDIAN)) +
+  geom_point(size = 3, alpha = 0.8) +
+  ggsci::scale_color_nejm() + 
+  scale_shape_manual(values = c(15, 16, 17, 18, 19, 8))
+  labs(
+    title = "PCA of Tree Community Composition",
+    x = "PC1 (49.7%)", 
+    y = "PC2 (18.8%)",
+    color = "AGE_MEDIAN",
+    shape = "AGE_MEDIAN"
+  ) +
+  theme_minimal() +
+  NULL
 ```
 
 #### 2-2. Perform NMDS to visualize the tree species composition.
@@ -145,5 +186,38 @@ After NMDS, please visualize the result. You can use Bray-Curtis dissimilarity t
 ```{r}
 ### Your R code is here
 ### XXXXX
+# Load library
+library(vegan)
 
+# Set random seed
+set.seed(42) 
+
+# Do NMDS
+nmds_tree <- metaMDS(d_tree_final, # data
+                    distance = "bray", # Use Bray-Curtis dissimilarity
+                    k = 2) # The number of dimensions
+```
+
+```{r}
+# Add age information
+plot_df <- as.data.frame(nmds_tree$points)
+plot_df$AGE_MEDIAN <- as.factor(df_1$AGE_MEDIAN)
+
+# Visualize the result using ggplots
+plot_df %>%
+   ggplot(aes(x = MDS1, y = MDS2, 
+              color = AGE_MEDIAN,
+              shape = AGE_MEDIAN)) +
+      geom_point(size = 3, alpha = 0.8) + 
+      ggsci::scale_color_nejm() + 
+  scale_shape_manual(values = c(15, 16, 17, 18, 19, 8)) +
+      labs(
+         x = "Axis 1", 
+         y = "Axis 2",
+         title = "NMDS of Tree Community",
+         color = "AGE_MEDIAN",
+         shape = "AGE_MEDIAN"
+      ) +
+      theme_minimal() +
+  NULL
 ```
