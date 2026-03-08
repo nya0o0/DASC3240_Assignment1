@@ -20,7 +20,7 @@ output: html_document
 Students may use generative AI tools during assignment, for example, to check and improve code, provided that the content is original and reflects the student's own contributions. If generative AI is used, students must declare its use in the box below. An example statement is: “*During the assignment, I used [XXXX] to [XXXX]. I subsequently reviewed and edited the code and take(s) full responsibility for the final version of the code.”*
 
 ::: textbox
-xxxxxxxxxxxxxx
+*During the assignment, I usedGenmini for debugging and formatting the plot. I subsequently reviewed and edited the code and take(s) full responsibility for the final version of the code.*
 :::
 
 # 3. Assignments
