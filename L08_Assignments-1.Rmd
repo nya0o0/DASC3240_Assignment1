@@ -80,27 +80,43 @@ head(df_2)
 ```
 
 ```{r}
-# Calculate the total abundance for each plot (sum of each column in ed2)
+# 2. Calculate the total abundance
 total_abundance <- colSums(df_2)
 
-# Verify if the column names of ed2 match the row names of ed1
+# 3. Verify and Plot
 if (all(names(total_abundance) == rownames(df_1))) {
-  message("Verification Successful: Plot IDs match.") 
-
+  
   plot_data <- data.frame(
-    Age = as.numeric(df_1$AGE_MEDIAN), 
+    Age = df_1$AGE_MEDIAN, 
     Abundance = as.numeric(total_abundance)
   )
-   ggplot(plot_data, aes(x = Age, y = Abundance)) +
-    geom_point(size = 3, color = "steelblue") +
-    geom_smooth(method = "lm", color = "red") +
-    labs(title = "Relationship: Forest Age vs Total Abundance",
-         x = "Median Forest Age",
-         y = "Total Abundance (Sum of Species)") +
-    theme_minimal()
+  
+  # Assign the plot to a variable 'p'
+  p <- ggplot(plot_data, aes(x = factor(Age), y = Abundance)) +
+    geom_boxplot(outlier.shape = NA, fill = "white", color = "black") + 
+    geom_jitter(width = 0.15, size = 2, alpha = 0.8) + 
+    labs(
+      title = "Total Tree Abundance across Different Forest Age Classes",
+      x = "Median forest age (yr)",
+      y = "Total tree abundance (ind.)"
+    ) +
+    theme_light() +
+    theme(
+      plot.title = element_text(size = 14, face = "bold", hjust = 0.5),
+      axis.title = element_text(size = 11, face = "bold"),
+      panel.grid.minor = element_blank()
+    )
 
-}else {
-  stop("The Plot IDs in the two files do not match! Check the order of your CSV files.")
+  # 4. EDIT PLOT SIZE HERE
+  # You can change width and height (units can be "in", "cm", or "mm")
+  # A standard scientific plot is often 6x5 or 7x5 inches.
+  ggsave("abundance_plot.png", plot = p, width = 7, height = 14, units = "in", dpi = 300)
+  
+  # To display it in your R session with a specific size (if using RStudio/Jupyter):
+  print(p)
+
+} else {
+  stop("The Plot IDs in the two files do not match!")
 }
 ```
 
